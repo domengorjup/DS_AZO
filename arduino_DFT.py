@@ -5,7 +5,7 @@ import time, sys
 from time import gmtime, strftime, sleep
 import numpy as np
 from numpy import fft
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 n_samples = 100
@@ -66,8 +66,6 @@ def startSample(speed):
     time_stopped = time.time()
     t = time_stopped-time_started
     
-    print("Sampling ended.\n\nRESULT:\t%d samples (time: %.4f s)\n\nClosing serial." %(count, t))
-    
     ser.close()
     
     return (x,y,z,t,count)
@@ -87,7 +85,12 @@ if __name__ == '__main__':
 ##    y = results[2]
 ##    z = results[3]
 
-    x,y,z,t,n = startSample(serialSpeed)
+    n = 1;
+    while n < 90:
+        x,y,z,t,n = startSample(serialSpeed)
+
+    print("Sampling ended.\n\nRESULT:\t%d samples (time: %.4f s)\n\nClosing serial." %(n, t))
+    
     #print(n/t, ' Hz')
 ##    
 ##    # ------------------------------------
@@ -130,8 +133,7 @@ if __name__ == '__main__':
 
     filename = strftime("%d_%H_%M_%S",gmtime())
 
-    np.savetxt(filename+'_xyz.txt', (x,y,z), newline='\n')
-    np.savetxt(filename+'_freq.txt', freq, newline='\n')
+    np.savetxt(filename+'.txt', (x,y,z,freq), newline='\n')
 
     print("Files saved.\n")
 
