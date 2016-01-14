@@ -12,20 +12,19 @@ def main():
 
 if __name__ == "__main__":
     filepath = main()
-    print(filepath)
 
     xf,yf,zf,freq = np.loadtxt(filepath)
 
 
 
-izbor = freq >= 0
+    izbor = freq >= 0
 
-plt.plot(freq[izbor], np.abs((zf))[izbor], 'g')
-plt.plot(freq[izbor], np.abs((xf))[izbor], 'b')
-plt.plot(freq[izbor], np.abs((yf))[izbor], 'r')
-plt.xlabel(r'$f$ [Hz]')
-plt.grid()
-frame = plt.gca()
-#frame.axes.get_yaxis().set_ticks([])
+    plt.plot(freq[izbor], np.abs((xf))[izbor], 'b', label='x')
+    plt.plot(freq[izbor], np.abs((yf))[izbor], 'r', label='y')
+    plt.plot(freq[izbor], np.abs((zf))[izbor], 'g', label='z')
+    plt.xlabel(r'$f$ [Hz]')
+    plt.legend()
+    plt.title("AZO data plotter")
+    plt.grid()
 
-plt.show()
+    plt.show()
