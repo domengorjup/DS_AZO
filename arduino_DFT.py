@@ -1,4 +1,3 @@
-from __future__ import print_function
 import serial
 import serial.tools.list_ports
 import time, sys
@@ -10,6 +9,7 @@ import matplotlib.pyplot as plt
 
 n_samples = 100
 serialSpeed = 115200
+#arduinoPort = "ttyACM0"        # Kadar avtomatska izbira porta ne dela
 
 # -----------------------------------------------------------------------------
 
@@ -22,10 +22,12 @@ def startSample(speed):
     z = np.array([], dtype=float)
     t = np.array([], dtype=float)
     
-    ports = list(serial.tools.list_ports.comports())
-    for p in ports:
-        if "ttyACM" in p[1]:
-            arduinoPort = p[0]
+    if not arduinoPort:
+        ports = list(serial.tools.list_ports.comports())
+        
+        for p in ports:
+            if "ttyACM" in p[1]:        # Običajen naslov arduina na Raspberry-Pi
+                arduinoPort = p[0]
 
     ser = serial.Serial(arduinoPort, timeout=None, baudrate=serialSpeed)
 
@@ -43,7 +45,7 @@ def startSample(speed):
             if not started:
                 started = 1
                 print('Sampling started.\n')
-                #time_started = time.time()
+                
             
             line = ser.readline().decode('utf-8').rstrip().split()
             count = count + 1
@@ -65,8 +67,6 @@ def startSample(speed):
         except (KeyboardInterrupt, ValueError):
             break
 
-    #time_stopped = time.time()
-    #t = time_stopped-time_started
     
     
     ser.close()
@@ -80,35 +80,24 @@ def startSample(speed):
 
 if __name__ == '__main__':
 
-##    #Start playing sound and sampling simultaneously:
-##    pool = mp.Pool(processes=2)
-##    results = pool.apply_async(startSample, args=(serialSpeed,))
-##    closecode = pool.apply_async(playTone, args=(outputFrequency, 20,))
-##    
-##    results = results.get()
-##    
-##    t = results[0]
-##    x = results[1]
-##    y = results[2]
-##    z = results[3]
-
     n = 1;
     while n < 90:
         x,y,z,t,n = startSample(serialSpeed)
 
     print("Sampling ended.\n\nRESULT:\t%d samples (time: %.4f s)\n\nClosing serial." %(n, t))
     
-    #print(n/t, ' Hz')
-##    
-##    # ------------------------------------
+    print(n/t, ' Hz')
+  
+  
+    # ------------------------------------
     # IZRAČUN POSPEŠKOV
     # ------------------------------------
 
     print("\nPostprocessing started.\n")
     
-    zero = 502    # povprečna vrednsot za (ADXL335)
+    zero = 502      # povprečna vrednsot za (ADXL335)
     g1 = 410        # povprečna vrednost z osi pri merovanju (ADXL335)
-    # g = meritev - zero / (g1-zero)
+                    # g = meritev - zero / (g1-zero)
 
     x = (x - zero) / (g1-zero) * 9.81
     y = (y - zero) / (g1-zero) * 9.81
@@ -119,7 +108,6 @@ if __name__ == '__main__':
     yn = y - np.mean(y)
     zn = z - np.mean(z)
 
-    #print(xn, yn, zn)
 
     # ------------------------------------
     # DFT
@@ -159,7 +147,6 @@ if __name__ == '__main__':
     ax[0].set_xlabel(r'$f$ [Hz]')
     ax[0].grid()
     ax[0].legend()
-    #ax[0].set_xlim([0,50])
 
     tt = np.linspace(0,t,n)
     ax[1].hold(True)
